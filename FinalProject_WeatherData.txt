@@ -1,0 +1,174 @@
+import org.apache.spark.sql.functions._
+import org.joda.time.format.DateTimeFormat
+import org.apache.commons.io.IOUtils
+import java.net.URL
+import java.nio.charset.Charset
+
+%pyspark
+import pandas
+import numpy as np
+
+%pyspark
+working_directory =r"D:\Aakash_Documents\MS_Collections\AcceptanceFromSaintPeters\ClassStuff\DS_680_MrktgAnalytic\KaggleCompetitions\ScikitLearn_Compt1\Data\\"
+
+// load aarhus city data - store different parameters in different variables
+
+//define path for reading the json format file
+val inputPath =  "D:/Aakash_Documents/MS_Collections/AcceptanceFromSaintPeters/ClassStuff/DS_670_Capstone/FinalProject_WeatherReport/dataset/raw_weather_data_aarhus"
+
+//read dewpoint weather parameter
+val dewpoint_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/dewpoint/dewptm_Feb_Jun.csv")
+
+val dewpoint_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/dewpoint/dewptm_Aug_Sep.csv")
+        
+//read humidity weather parameter
+val humidity_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/humidity/hum_feb_jun.csv")
+
+val humidity_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/humidity/hum_aug_sep.csv")
+        
+//read pressure weather parameter
+val pressure_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/pressure/pressurem_feb_jun.csv")
+
+val pressure_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/pressure/pressurem_aug_sept.csv")
+        
+//read temperature weather parameter
+val temp_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/temperature/tempm_feb_jun.csv")
+
+
+val temp_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/temperature/tempm_aug_sept.csv")
+
+//read wind direction weather parameter
+val winddirection_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/winddirection/wdird_feb_jun.csv")
+
+val winddirection_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/winddirection/wdird_aug_sept.csv")
+
+//read wind speed weather parameter
+val windspeed_feb_jun = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/windspeed/wspdm_feb_jun.csv")
+
+val windspeed_aug_sep = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/windspeed/wspdm_aug_sept.csv")
+
+// load ensol index & air pressure data - competitive article
+
+//define path for reading the json format file
+val inputPath =  "D:/Aakash_Documents/MS_Collections/AcceptanceFromSaintPeters/ClassStuff/DS_670_Capstone/FinalProject_WeatherReport/dataset/dataset_competitivearticle"
+
+//read dewpoint weather parameter
+val ensol_inex = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/EnsoIndex.csv")
+
+//read dewpoint weather parameter
+val tahiti_airpressure = sqlContext.read
+        .format("com.databricks.spark.csv")
+        .option("header", "true") // Use first line of all files as header
+        .option("delimiter", ",")
+        .option("inferSchema", "true") // Automatically infer data types
+        .load(inputPath+"/tahiti_airpressure.csv")        
+ensol_inex.printSchema()
+tahiti_airpressure.printSchema()
+
+//let us verify the datatype of each variable
+dewpoint_feb_jun.printSchema()
+dewpoint_aug_sep.printSchema()
+
+humidity_feb_jun.printSchema()
+humidity_aug_sep.printSchema()
+
+pressure_feb_jun.printSchema()
+pressure_aug_sep.printSchema()
+
+temp_feb_jun.printSchema()
+temp_aug_sep.printSchema()
+
+winddirection_feb_jun.printSchema()
+winddirection_aug_sep.printSchema()
+
+windspeed_feb_jun.printSchema()
+windspeed_aug_sep.printSchema()
+
+//create temp table of each weather data, data frame
+dewpoint_feb_jun.registerTempTable("dewpoint_feb_jun");
+dewpoint_aug_sep.registerTempTable("dewpoint_aug_sep");
+
+humidity_feb_jun.registerTempTable("humidity_feb_jun");
+humidity_aug_sep.registerTempTable("humidity_aug_sep");
+
+pressure_feb_jun.registerTempTable("pressure_feb_jun");
+pressure_aug_sep.registerTempTable("pressure_aug_sep");
+
+temp_feb_jun.registerTempTable("temp_feb_jun");
+temp_aug_sep.registerTempTable("temp_aug_sep");
+
+winddirection_feb_jun.registerTempTable("winddirection_feb_jun");
+winddirection_aug_sep.registerTempTable("winddirection_aug_sep");
+
+windspeed_feb_jun.registerTempTable("windspeed_feb_jun");
+windspeed_aug_sep.registerTempTable("windspeed_aug_sep");
+
+ensol_inex.registerTempTable("ensol_index");
+tahiti_airpressure.registerTempTable("tahiti_airpressure");
+
+%sql SELECT d.DewPoint as DewPoint,h.humidity as Humidity FROM dewpoint_feb_jun as d JOIN humidity_feb_jun as h ON (d.DateTime=h.DateTime)
